@@ -13,11 +13,12 @@ func createFile(filename string) error {
 		return fmt.Errorf("невдалося створити файл: %v", err)
 	}
 	defer file.Close()
+
 	randQuantity := rand.Intn(100)
 
 	for i := 0; i < randQuantity; i++ {
-		randNumber := rand.Int63n(9000000000) + 1000000000
-		_, err := file.WriteString(fmt.Sprintf("%d\n", randNumber))
+		randNumber := fmt.Sprintf("380%07d", rand.Intn(1000000000))
+		_, err := file.WriteString(randNumber + "\n")
 		if err != nil {
 			return fmt.Errorf("помилка запису рядка у файл: %v", err)
 		}

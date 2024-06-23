@@ -10,13 +10,16 @@ func createFile(filename string) error {
 	file, err := os.Create(filename)
 
 	if err != nil {
-		return fmt.Errorf("недавла спрба створити файл", err)
+		return fmt.Errorf("невдалося створити файл: %v", err)
 	}
+	defer file.Close()
+	randQuantity := rand.Intn(100)
 
-	for i := 0; i < rand.Intn(100); i++ {
-		_, err := file.WriteString("abc\n")
+	for i := 0; i < randQuantity; i++ {
+		randNumber := rand.Int63n(9000000000) + 1000000000
+		_, err := file.WriteString(fmt.Sprintf("%d\n", randNumber))
 		if err != nil {
-			return fmt.Errorf("помика запису рядка у файл", err)
+			return fmt.Errorf("помилка запису рядка у файл: %v", err)
 		}
 	}
 	return nil

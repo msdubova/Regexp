@@ -1,11 +1,11 @@
 package main
 
 import (
-	"errors"
 	"fmt"
-	"io"
 	"math/rand"
 	"os"
+	"regexp"
+	"strings"
 )
 
 func generateRandomNumber() string {
@@ -44,47 +44,96 @@ func createFile(filename string) error {
 	return nil
 }
 
-func readFile(filename string) {
+func readFile(filename string) ([]string, error) {
 	fileContent, err := os.ReadFile(filename)
 
 	if err != nil {
-		fmt.Println("Помилка читання файлу", err)
+		return nil, fmt.Errorf("Помилка читання файлу", err)
 	}
-
-	fmt.Printf(string(fileContent))
+	lines := strings.Split(string(fileContent), "\n")
+	return lines, nil
 }
 
-func readFileBuff(filename string) {
-
-	buff := make([]byte, 5)
-
-	file, err := os.Open(filename)
+func findPhoneNumbers(filename string) error {
+	lines, err := readFile(filename)
 
 	if err != nil {
-		fmt.Println("Помилка відкриття файлу", err)
+		return fmt.Errorf("помилка читання файлу: %v", err)
 	}
 
-	for {
-		n, err := file.Read(buff)
-		if err != nil {
+	pattern := regexp.MustCompile(`380\d{7}`)
 
-			if errors.Is(err, io.EOF) {
-				break
-			}
-			fmt.Println("помилка відкриття буферу та читання файла")
+	for _, line := range lines {
+		line = strings.ReplaceAll(line, " ", "")
+		line = strings.ReplaceAll(line, "(", "")
+		line = strings.ReplaceAll(line, ")", "")
+		line = strings.ReplaceAll(line, "-", "")
+		line = strings.ReplaceAll(line, "+", "")
+		matches := pattern.FindAllString(line, -1)
+		for _, match := range matches {
+			fmt.Println("Знайдено номер : ", match)
 		}
-
-		fmt.Println(n, "\"", string(buff), "\"")
 	}
+
+	return nil
 }
 
 func main() {
 	const filename = "a.txt"
 	err := createFile(filename)
 	if err != nil {
-		fmt.Printf("помилка", err)
+		fmt.Printf("помилка створення файлу  з номерами", err)
+		return
 	}
 
-	readFileBuff(filename)
-
+	err = findPhoneNumbers(filename)
+	if err != nil {
+		fmt.Printf("помилка пошуку номерів : %v\n", err)
+		return
+	}
 }
+
+// приклади з лекціі розбір
+// func someExample() {
+
+// 	matched, err := regexp.MatchString(`\w+`, ".")
+// 	if err != nil {
+// 		fmt.Println("ПОмилка", err)
+// 	}
+
+// 	fmt.Println("тут ", matched)
+
+// 	pattern, err := regexp.Compile(`C\w+`)
+// 	if err != nil {
+// 		fmt.Println("ПОмилка", err)
+// 	}
+
+// 	matches := pattern.FindAllString("Cat Cuc i meows meows", -1)
+
+// 	for i, v := range matches {
+// 		fmt.Println(i, v)
+// 	}
+// }
+// func readFileBuff(filename string) {
+
+// 	buff := make([]byte, 5)
+
+// 	file, err := os.Open(filename)
+
+// 	if err != nil {
+// 		fmt.Println("Помилка відкриття файлу", err)
+// 	}
+
+// 	for {
+// 		n, err := file.Read(buff)
+// 		if err != nil {
+
+// 			if errors.Is(err, io.EOF) {
+// 				break
+// 			}
+// 			fmt.Println("помилка відкриття буферу та читання файла")
+// 		}
+
+// 		fmt.Println(n, "\"", string(buff), "\"")
+// 	}
+// }

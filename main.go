@@ -17,7 +17,7 @@ func createFile(filename string) error {
 	randQuantity := rand.Intn(100)
 
 	for i := 0; i < randQuantity; i++ {
-		randNumber := fmt.Sprintf("380%07d", rand.Intn(1000000000))
+		randNumber := generateRandomNumber()
 		_, err := file.WriteString(randNumber + "\n")
 		if err != nil {
 			return fmt.Errorf("помилка запису рядка у файл: %v", err)
@@ -26,6 +26,7 @@ func createFile(filename string) error {
 	return nil
 
 }
+
 func main() {
 
 	err := createFile("a.txt")
@@ -33,4 +34,19 @@ func main() {
 		fmt.Printf("помилка")
 	}
 
+}
+
+func generateRandomNumber() string {
+	formats := []string{
+		"380%07d",
+		"(380) %07d",
+		"380-%07d",
+		"380 %07d",
+		"380.%07d",
+		"+380 %07d",
+	}
+
+	format := formats[rand.Intn(len(formats))]
+
+	return fmt.Sprintf(format, rand.Intn(10000000))
 }

@@ -10,29 +10,49 @@ import (
 
 func generateRandomNumber() string {
 	formats := []string{
-		"380%07d",
-		"(380) %07d",
-		"380-%07d",
-		"380 %07d",
-		"380.%07d",
-		"+380 %07d",
+		"380%s",
+		"(380) %s",
+		"380-%s",
+		"380 %s",
+		"380.%s",
+		"+380 %s",
+	}
+
+	randomNumberFormats := []string{
+		"%02d-%02d-%02d-%03d",
+		"%02d %02d %02d %03d",
+		"%02d.%02d.%02d.%03d",
+		"%09d",
 	}
 
 	format := formats[rand.Intn(len(formats))]
+	randomNumberFormat := randomNumberFormats[rand.Intn(len(randomNumberFormats))]
 
-	return fmt.Sprintf(format, rand.Intn(10000000))
+	var randomNumber string
+
+	if randomNumberFormat == "%09d" {
+		randomNumber = fmt.Sprintf(randomNumberFormat, rand.Intn(1000000000))
+	} else {
+		part1 := rand.Intn(100)
+		part2 := rand.Intn(100)
+		part3 := rand.Intn(100)
+		part4 := rand.Intn(1000)
+		randomNumber = fmt.Sprintf(randomNumberFormat, part1, part2, part3, part4)
+	}
+
+	return fmt.Sprintf(format, randomNumber)
 }
 
 func createFile(filename string) error {
 	file, err := os.Create(filename)
 
 	if err != nil {
-		return fmt.Errorf("невдалося створити файл: %v", err)
+		return fmt.Errorf("не вдалося створити файл: %v", err)
 	}
 
 	defer file.Close()
 
-	randQuantity := rand.Intn(100)
+	randQuantity := rand.Intn(10)
 
 	for i := 0; i < randQuantity; i++ {
 		randNumber := generateRandomNumber()
@@ -61,17 +81,13 @@ func findPhoneNumbers(filename string) error {
 		return fmt.Errorf("помилка читання файлу: %v", err)
 	}
 
-	pattern := regexp.MustCompile(`380\d{7}`)
+	pattern := regexp.MustCompile(`\+?380\s?(\(?380\)?\s?)?(?:\s|-|\.?)?\d{2,3}[\s.-]?\d{2}[\s.-]?\d{2}[\s.-]?\d{2,3}`)
 
-	for _, line := range lines {
-		line = strings.ReplaceAll(line, " ", "")
-		line = strings.ReplaceAll(line, "(", "")
-		line = strings.ReplaceAll(line, ")", "")
-		line = strings.ReplaceAll(line, "-", "")
-		line = strings.ReplaceAll(line, "+", "")
+	for i, line := range lines {
+
 		matches := pattern.FindAllString(line, -1)
 		for _, match := range matches {
-			fmt.Println("Знайдено номер : ", match)
+			fmt.Printf("%d) Знайдено номер : %s \n", i+1, match)
 		}
 	}
 

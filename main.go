@@ -81,7 +81,7 @@ func findPhoneNumbers(filename string) error {
 		return fmt.Errorf("помилка читання файлу: %v", err)
 	}
 
-	pattern := regexp.MustCompile(`\+?380\s?(\(?380\)?\s?)?(?:\s|-|\.?)?\d{2,3}[\s.-]?\d{2}[\s.-]?\d{2}[\s.-]?\d{2,3}`)
+	pattern := regexp.MustCompile(`\(?\+?380\s?\)?(\(?380\)?\s?)?(?:\s|-|\.?)?\d{2,3}[\s.-]?\d{2}[\s.-]?\d{2}[\s.-]?\d{2,3}`)
 
 	for i, line := range lines {
 
